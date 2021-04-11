@@ -5,6 +5,8 @@
 #include <list>
 using namespace std;
 
+
+
 void frontendCore()
 {
     while (true)
@@ -18,27 +20,57 @@ void frontendCore()
     }
 }
 
+bool IS_PRINT = true;
+
+void DEV_PRINT(string msg)
+{
+    if (IS_PRINT)
+    {
+        cout << msg << "\n";
+    }
+}
+
 class QueueAndStackSystem
 {
 private:
     //stacks
-    const int stackAmount;
+    stack<int>** avaiableStack;
     const int maxAmountItemsPerStack;
-    stack<int>* avaiableStack;
+    const int stackAmount;
+
     //queue
-    const int queueAmount;
+    queue<int>** avaiableQueue;
     const int maxAmountItemsPerQueue;
-    queue<int>* avaiableQueue;
+    const int queueAmount;
+    
+
 public:
-    QueueAndStackSystem()
-        :stackAmount(10), maxAmountItemsPerStack(10), queueAmount(10), maxAmountItemsPerQueue(10)
+    QueueAndStackSystem(const int stackAmount, const int maxAmountItemsPerStack,
+        const int queueAmount, const int maxAmountItemsPerQueue)
+        :stackAmount(stackAmount), maxAmountItemsPerStack(maxAmountItemsPerStack),
+        queueAmount(queueAmount), maxAmountItemsPerQueue(maxAmountItemsPerQueue)
     {
-        avaiableStack = new stack<int>[stackAmount];
-        avaiableQueue = new queue<int>[queueAmount];
+        avaiableStack = new stack <int>*[stackAmount];
+        avaiableQueue = new queue <int>*[queueAmount];
+    }
+    void createStack(int stackIndex)
+    {
+        if (stackIndex <= 0 && stackIndex <= this->maxAmountItemsPerStack)
+        {
+            avaiableStack[stackIndex] = new stack <int>;
+            DEV_PRINT("ok -> stack created");
+        }
+        else
+        {
+            DEV_PRINT("cant create stack -> bad index");
+        }
     }
 };
 
+
+
 int main()
 {
-
+    QueueAndStackSystem q1(10,10,10,10);
+    q1.createStack(11);
 }
