@@ -1,25 +1,8 @@
 #include <iostream>
 #include <string>
-#include <stack> 
-#include <queue>
+#include <queue> // to usuniecia
 #include <list>
 using namespace std;
-
-
-
-void frontendCore()
-{
-    while (true)
-    {
-        string commandToExecute;
-        getline(cin, commandToExecute);
-        if (commandToExecute == "")
-        {
-            break;
-        }
-    }
-}
-
 bool IS_PRINT = true;
 
 void DEV_PRINT(string msg)
@@ -75,6 +58,29 @@ public:
         {
             return false;
         }
+    }
+
+    list<string> splitString(string text, string separator)
+    {
+        int  foundSeparator = text.find(separator);
+        int indexStart = 0;
+        list <string> arguments;
+        if (foundSeparator != -1)
+        {
+            while (true)
+            {
+                string textToPush = text.substr(indexStart, foundSeparator - indexStart);
+                arguments.push_back(textToPush);
+                text = text.substr(foundSeparator + 1);
+                foundSeparator = text.find(separator);
+                if (foundSeparator == -1)
+                {
+                    arguments.push_back(text);
+                    break;
+                }
+            }
+        }
+        return arguments;
     }
 
     //----------------------
@@ -170,17 +176,93 @@ public:
     {
         cout << "test\n";
     }
+    void frontendCore()
+    {
+        list<string> commandListToExecute;
+        commandListToExecute.push_back("new_s 0");
+        commandListToExecute.push_back("push 0 96");
+        commandListToExecute.push_back("new_s 5");
+        commandListToExecute.push_back("print_s 5");
+        commandListToExecute.push_back("push 5 28");
+        commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("push 5 88");
+        commandListToExecute.push_back("pop 0");
+        commandListToExecute.push_back("print_s 5");
+        commandListToExecute.push_back("push 0 65");
+        commandListToExecute.push_back("stack->stack 5 0");
+        commandListToExecute.push_back("print_s 0");
+
+
+        /*while (true)
+        {
+            string commandToExecute;
+            getline(cin, commandToExecute);
+            if (commandToExecute == "")
+            {
+                break;
+            }
+            commandListToExecute.push_back(commandToExecute);
+        }*/
+        for (auto simpleCommand : commandListToExecute)
+        {
+            cout << simpleCommand << "\n";
+            list<string> commandArguments = this->splitString(simpleCommand," ");
+            string operationType = commandArguments.front();
+            commandArguments.pop_front();
+            
+            if (operationType == "new_s") 
+            {
+                
+                string argument1 = commandArguments.front();
+                int value1 = stoi(argument1);
+                this->createStack(value1);
+            }
+            else if (operationType == "push")
+            {
+                string argument1 = commandArguments.front();
+                commandArguments.pop_front();
+                string argument2 = commandArguments.front();
+
+                int value1 = stoi(argument1);
+                int va
+
+            }
+            else if (operationType == "pop")
+            {
+
+            }
+            else if (operationType == "stack->stack")
+            {
+
+            }
+            else if (operationType == "delete_s")
+            {
+
+            }
+            else if (operationType == "print_s")
+            {
+
+            }
+        }
+            
+    }
+    int returnArgumentFromCommand()
+  
 };
 
 int main()
-{
+{/*
     QueueAndStackSystem q1(10,10,10,10);
     q1.createStack(2);
     q1.addElementToStack(1, 2);
     q1.addElementToStack(2, 2);
     q1.addElementToStack(3, 2);
-    q1.printStack(2);
+    q1.printStack(2);*/
    /* q1.test();*/
 
-    
+
+    QueueAndStackSystem q1(10, 10, 10, 10);
+    q1.frontendCore();
+    //q1.splitString("test1 testt2 testtt3", " ");
+
 }
