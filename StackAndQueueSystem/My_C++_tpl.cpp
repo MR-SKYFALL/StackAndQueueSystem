@@ -3,7 +3,7 @@
 #include <queue> // to usuniecia
 #include <list>
 using namespace std;
-bool IS_PRINT = false;
+bool IS_PRINT = true;
 
 void DEV_PRINT(string msg)
 {
@@ -61,6 +61,21 @@ public:
         }
     }
 
+    bool queueCheckIsIndexOK(int queueIndex)
+    {
+        // check is stack index correct
+        //a) check is index beetween 0 and stackAmount
+        //b) check is stack exist 
+        if (queueIndex < this->queueAmount && queueIndex >= 0 && this->isQueueExist[queueIndex] == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     list<string> splitString(string text, string separator)
     {
         int  foundSeparator = text.find(separator);
@@ -105,8 +120,8 @@ public:
     {
         if (queueIndex >= 0 && queueIndex <= this->maxAmountItemsPerQueue)
         {
-            this->isStackExist[queueIndex] = true;
-            this->stackList[queueIndex] = new list <int>;
+            this->isQueueExist[queueIndex] = true;
+            this->queueList[queueIndex] = new list <int>;
 
             DEV_PRINT("ok -> queue created");
         }
@@ -134,6 +149,25 @@ public:
             DEV_PRINT("add element -> bad stack index");
         }
     }
+    void addElementToQueue(int queueIndex, int elementToInsert)
+    {
+        if (this->queueCheckIsIndexOK(queueIndex))
+        {
+
+            if (this->queueList[queueIndex]->size() < this->maxAmountItemsPerQueue)
+            {
+                this->queueList[queueIndex]->push_front(elementToInsert);
+            }
+            else
+            {
+                cout << "error: queue is full\n";
+            }
+        }
+        else
+        {
+            DEV_PRINT("add element -> bad stack index");
+        }
+    }
     void deleteElementFromStack(int stackIndex)
     {
         if (this->stackCheckIsIndexOK(stackIndex))
@@ -150,6 +184,24 @@ public:
         else
         {
             DEV_PRINT("delete element -> bad stack index");
+        }
+    }
+    void deleteElementFromQueue(int queueIndex)
+    {
+        if (this->queueCheckIsIndexOK(queueIndex))
+        {
+            if (this->queueList[queueIndex]->size() > 0)
+            {
+                this->queueList[queueIndex]->pop_back();
+            }
+            else
+            {
+                cout << "error: queue is empty\n";
+            }
+        }
+        else
+        {
+            DEV_PRINT("delete element -> bad queue index");
         }
     }
     void moveElementFromStackAToStackB(int stackIndexA, int stackIndexB)
@@ -177,6 +229,18 @@ public:
             DEV_PRINT("delete stack -> bad stack index");
         }
     }
+    void deleteQueue(int queueIndex)
+    {
+        if (this->queueCheckIsIndexOK(queueIndex))
+        {
+            delete this->queueList[queueIndex];
+            this->isQueueExist[queueIndex] = false;
+        }
+        else
+        {
+            DEV_PRINT("delete queue -> bad queue index");
+        }
+    }
     void printStack(int stackIndex)
     {
         if (this->stackCheckIsIndexOK(stackIndex))
@@ -188,7 +252,6 @@ public:
             else
             {
                 int size = this->stackList[stackIndex]->size();
-                int test = this->stackList[stackIndex]->front();
                 for (int i = 0; i < size; i++)
                 {
                     int tmp = this->stackList[stackIndex]->back();
@@ -199,6 +262,29 @@ public:
                 cout << "\n";
             }
             
+        }
+    }
+    void printQueue(int queueIndex)
+    {
+        if (this->queueCheckIsIndexOK(queueIndex))
+        {
+            if (this->queueList[queueIndex]->size() == 0)
+            {
+                cout << "empty\n";
+            }
+            else
+            {
+                int size = this->queueList[queueIndex]->size();
+                for (int i = 0; i < size; i++)
+                {
+                    int tmp = this->queueList[queueIndex]->back();
+                    cout << tmp << " ";
+                    this->queueList[queueIndex]->pop_back();
+                    this->queueList[queueIndex]->push_front(tmp);
+                }
+                cout << "\n";
+            }
+
         }
     }
     void frontendCore()
@@ -225,7 +311,7 @@ public:
         //--------------
         //test-2
         //--------------
-        commandListToExecute.push_back("new_s 0");
+        /*commandListToExecute.push_back("new_s 0");
         commandListToExecute.push_back("push 0 96");
         commandListToExecute.push_back("new_s 5");
         commandListToExecute.push_back("print_s 5");
@@ -246,8 +332,7 @@ public:
         commandListToExecute.push_back("push 5 9");
         commandListToExecute.push_back("push 5 87");
         commandListToExecute.push_back("stack->stack 5 0");
-        commandListToExecute.push_back("print_s 0");
-
+        commandListToExecute.push_back("print_s 0");*/
 
 
 
@@ -316,20 +401,28 @@ public:
 };
 
 int main()
-{/*
-    QueueAndStackSystem q1(10,10,10,10);
-    q1.createStack(2);
-    q1.addElementToStack(1, 2);
-    q1.addElementToStack(2, 2);
-    q1.addElementToStack(3, 2);
-    q1.printStack(2);*/
-   /* q1.test();*/
-
-
+{
+ 
     QueueAndStackSystem q1(10, 10, 10, 10);
-    q1.frontendCore();
-    //q1.splitString("test1 testt2 testtt3", " ");
+    /*q1.frontendCore();*/
+    q1.createQueue(0);
+    q1.addElementToQueue(0, 10);
+    q1.addElementToQueue(0, 20);
+    q1.addElementToQueue(0, 30);
+    q1.addElementToQueue(0, 40);
+    
 
-    // TODO
-    // stack a->b bad stack index
+    q1.createStack(0);
+    q1.addElementToStack(0,100);
+    q1.addElementToStack(0,200);
+    q1.addElementToStack(0,300);
+    q1.addElementToStack(0,400);
+
+    q1.printQueue(0);
+    q1.printStack(0);
+
+    //TODO:
+    /*
+    1.Test queue backend. Particulary print operation
+    */
 }
