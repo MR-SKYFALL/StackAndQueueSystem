@@ -3,7 +3,7 @@
 #include <queue> // to usuniecia
 #include <list>
 using namespace std;
-bool IS_PRINT = true;
+bool IS_PRINT = false;
 
 void DEV_PRINT(string msg)
 {
@@ -208,13 +208,105 @@ public:
     {
         if (this->stackCheckIsIndexOK(stackIndexA) && this->stackCheckIsIndexOK(stackIndexB))
         {
-            int tmp = this->stackList[stackIndexA]->front();
-            this->deleteElementFromStack(stackIndexA);
-            this->addElementToStack(stackIndexB, tmp );
+            if (this->stackList[stackIndexA]->size() == 0)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element stackA to stackB -> stackA is empty");
+            }
+            else if (this->stackList[stackIndexB]->size() == this->maxAmountItemsPerStack)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element stackA to stackB -> stackB is full");
+            }
+            else 
+            {
+                int tmp = this->stackList[stackIndexA]->front();
+                this->deleteElementFromStack(stackIndexA);
+                this->addElementToStack(stackIndexB, tmp);
+            }
+           
         }
         else
         {
-            DEV_PRINT("move element -> bad stack index");
+            DEV_PRINT("move element stack A to stack B -> bad stack index");
+        }
+    }
+    void moveElementFromQueueAToQueueB(int queueIndexA, int queueIndexB)
+    {
+        if (this->queueCheckIsIndexOK(queueIndexA) && this->queueCheckIsIndexOK(queueIndexB))
+        {
+            if (this->queueList[queueIndexA]->size() == 0)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element queueA to queueB -> queueA is empty");
+            }
+            else if (this->queueList[queueIndexB]->size() == this->maxAmountItemsPerQueue)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element queueA to queueB -> queueB is full");
+            }
+            else
+            {
+                int tmp = this->queueList[queueIndexA]->back();
+                this->deleteElementFromQueue(queueIndexA);
+                this->addElementToQueue(queueIndexB, tmp);
+            }
+        }
+        else
+        {
+            DEV_PRINT("move element queue A to queue B -> bad  index");
+        }
+    }
+    void moveElementFormStackToQueue(int stackIndex, int queueIndex)
+    {
+        if (this->stackCheckIsIndexOK(stackIndex) && this->queueCheckIsIndexOK(queueIndex))
+        {
+            if (this->stackList[stackIndex]->size() == 0)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element stack to queue -> stack is empty");
+            }
+            else if (this->queueList[queueIndex]->size() == this->maxAmountItemsPerQueue)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element stack to queue -> queue is full");
+            }
+            else
+            {
+                int tmp = this->stackList[stackIndex]->front();
+                this->deleteElementFromStack(stackIndex);
+                this->addElementToQueue(queueIndex, tmp);
+            }
+        }
+        else
+        {
+            DEV_PRINT("move element stack to queue -> bad  index");
+        }
+    }
+    void moveElementFromQueueToStack(int queueIndex, int stackIndex)
+    {
+        if (this->stackCheckIsIndexOK(stackIndex) && this->queueCheckIsIndexOK(queueIndex))
+        {
+            if (this->queueList[queueIndex]->size() == 0)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element queue to stack -> queue is empty");
+            }
+            else if (this->stackList[stackIndex]->size() == this->maxAmountItemsPerStack)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element queue to stack -> stack is full");
+            }
+            else
+            {
+                int tmp = this->queueList[queueIndex]->back();
+                this->deleteElementFromQueue(queueIndex);
+                this->addElementToStack(stackIndex, tmp);
+            }
+        }
+        else
+        {
+            DEV_PRINT("move element queue to stack -> bad  index");
         }
     }
     void deleteStack(int stackIndex)
@@ -261,7 +353,10 @@ public:
                 }
                 cout << "\n";
             }
-            
+        }
+        else
+        {
+            DEV_PRINT("bad index -> stack print");
         }
     }
     void printQueue(int queueIndex)
@@ -277,16 +372,20 @@ public:
                 int size = this->queueList[queueIndex]->size();
                 for (int i = 0; i < size; i++)
                 {
-                    int tmp = this->queueList[queueIndex]->back();
+                    int tmp = this->queueList[queueIndex]->front();
                     cout << tmp << " ";
-                    this->queueList[queueIndex]->pop_back();
-                    this->queueList[queueIndex]->push_front(tmp);
+                    this->queueList[queueIndex]->pop_front();
+                    this->queueList[queueIndex]->push_back(tmp);
                 }
                 cout << "\n";
             }
-
+        }
+        else
+        {
+            DEV_PRINT("bad index -> queue print");
         }
     }
+
     void frontendCore()
     {
         list<string> commandListToExecute;
@@ -311,12 +410,40 @@ public:
         //--------------
         //test-2
         //--------------
+        //commandListToExecute.push_back("new_s 0");
+        //commandListToExecute.push_back("push 0 96");
+        //commandListToExecute.push_back("new_s 5");
+        //commandListToExecute.push_back("print_s 5");
+        //commandListToExecute.push_back("push 5 28");
+        //commandListToExecute.push_back("push 5 99");
+        //commandListToExecute.push_back("push 5 33");
+        //commandListToExecute.push_back("push 5 88");
+        //commandListToExecute.push_back("pop 0");
+        //commandListToExecute.push_back("print_s 5");
+        //commandListToExecute.push_back("pop 0");
+        //commandListToExecute.push_back("push 0 65");
+        //commandListToExecute.push_back("push 5 99");
+        //commandListToExecute.push_back("push 5 13");
+        //commandListToExecute.push_back("push 5 99");
+        //commandListToExecute.push_back("push 5 1");
+        //commandListToExecute.push_back("push 5 99");
+        //commandListToExecute.push_back("push 5 0");
+        //commandListToExecute.push_back("push 5 9");
+        //commandListToExecute.push_back("push 5 87");
+        //commandListToExecute.push_back("stack->stack 5 0");
+        //commandListToExecute.push_back("print_s 0");
+
+
+         //--------------
+        //test-3
+        //--------------
         /*commandListToExecute.push_back("new_s 0");
         commandListToExecute.push_back("push 0 96");
         commandListToExecute.push_back("new_s 5");
         commandListToExecute.push_back("print_s 5");
         commandListToExecute.push_back("push 5 28");
         commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("new_q 0");
         commandListToExecute.push_back("push 5 33");
         commandListToExecute.push_back("push 5 88");
         commandListToExecute.push_back("pop 0");
@@ -324,20 +451,119 @@ public:
         commandListToExecute.push_back("pop 0");
         commandListToExecute.push_back("push 0 65");
         commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("dequeue 0");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("new_q 9");
         commandListToExecute.push_back("push 5 13");
         commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("enqueue 0 43");
+        commandListToExecute.push_back("enqueue 0 21");
+        commandListToExecute.push_back("enqueue 0 17");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("enqueue 9 0");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("enqueue 0 43");
+        commandListToExecute.push_back("enqueue 0 40");
         commandListToExecute.push_back("push 5 1");
         commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("enqueue 0 33");
+        commandListToExecute.push_back("enqueue 0 99");
+        commandListToExecute.push_back("enqueue 0 8");
         commandListToExecute.push_back("push 5 0");
         commandListToExecute.push_back("push 5 9");
+        commandListToExecute.push_back("delete_q 0");
+        commandListToExecute.push_back("print_q 9");
         commandListToExecute.push_back("push 5 87");
+        commandListToExecute.push_back("new_q 0");
+        commandListToExecute.push_back("enqueue 0 19");
+        commandListToExecute.push_back("print_q 0");
         commandListToExecute.push_back("stack->stack 5 0");
         commandListToExecute.push_back("print_s 0");*/
 
 
+        //--------------
+       //test-3 only queue
+       //--------------
+
+        //commandListToExecute.push_back("new_q 0");
+        //commandListToExecute.push_back("dequeue 0");
+        //commandListToExecute.push_back("enqueue 0 4");
+        //commandListToExecute.push_back("new_q 9");//
+        //commandListToExecute.push_back("enqueue 0 43");
+        //commandListToExecute.push_back("enqueue 0 21");
+        //commandListToExecute.push_back("enqueue 0 17");
+        //commandListToExecute.push_back("enqueue 0 4");
+        //commandListToExecute.push_back("enqueue 9 0");
+        //commandListToExecute.push_back("enqueue 0 4");
+        //commandListToExecute.push_back("enqueue 0 43");
+        //commandListToExecute.push_back("enqueue 0 40");
+        //commandListToExecute.push_back("enqueue 0 33");
+        //commandListToExecute.push_back("enqueue 0 99");
+        //commandListToExecute.push_back("enqueue 0 8");
+        //commandListToExecute.push_back("delete_q 0");
+        //commandListToExecute.push_back("print_q 9");
+        //commandListToExecute.push_back("new_q 0");
+        //commandListToExecute.push_back("enqueue 0 19");
+        //commandListToExecute.push_back("print_q 0");
+
+        //--------------
+       //test-4
+       //--------------
+        /*commandListToExecute.push_back("new_s 0");
+        commandListToExecute.push_back("push 0 96");
+        commandListToExecute.push_back("new_s 5");
+        commandListToExecute.push_back("print_s 5");
+        commandListToExecute.push_back("push 5 28");
+        commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("new_q 0");
+        commandListToExecute.push_back("push 5 33");
+        commandListToExecute.push_back("push 5 88");
+        commandListToExecute.push_back("pop 0");
+        commandListToExecute.push_back("print_s 5");
+        commandListToExecute.push_back("pop 0");
+        commandListToExecute.push_back("push 0 65");
+        commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("dequeue 0");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("new_q 9");
+        commandListToExecute.push_back("push 5 13");
+        commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("enqueue 0 43");
+        commandListToExecute.push_back("enqueue 0 21");
+        commandListToExecute.push_back("enqueue 0 17");
+        commandListToExecute.push_back("stack->queue 0 0");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("stack->queue 0 0");
+        commandListToExecute.push_back("enqueue 9 0");
+        commandListToExecute.push_back("enqueue 0 4");
+        commandListToExecute.push_back("enqueue 0 43");
+        commandListToExecute.push_back("queue->queue 0 0");
+        commandListToExecute.push_back("stack->stack 5 5");
+        commandListToExecute.push_back("enqueue 0 40");
+        commandListToExecute.push_back("push 5 1");
+        commandListToExecute.push_back("push 5 99");
+        commandListToExecute.push_back("enqueue 0 33");
+        commandListToExecute.push_back("enqueue 0 99");
+        commandListToExecute.push_back("enqueue 0 8");
+        commandListToExecute.push_back("push 5 0");
+        commandListToExecute.push_back("push 5 9");
+        commandListToExecute.push_back("delete_q 0");
+        commandListToExecute.push_back("print_q 9");
+        commandListToExecute.push_back("push 5 87");
+        commandListToExecute.push_back("new_q 0");
+        commandListToExecute.push_back("stack->queue 5 0");
+        commandListToExecute.push_back("enqueue 0 3");
+        commandListToExecute.push_back("queue->queue 0 0");
+        commandListToExecute.push_back("enqueue 0 19");
+        commandListToExecute.push_back("stack->stack 5 0");
+        commandListToExecute.push_back("print_s 0");
+        commandListToExecute.push_back("print_s 5");
+        commandListToExecute.push_back("print_q 0");
+        commandListToExecute.push_back("print_q 9");*/
 
 
-        /*while (true)
+
+        while (true)
         {
             string commandToExecute;
             getline(cin, commandToExecute);
@@ -346,14 +572,18 @@ public:
                 break;
             }
             commandListToExecute.push_back(commandToExecute);
-        }*/
+        }
+        int licznik = 1;
         for (auto simpleCommand : commandListToExecute)
         {
-            DEV_PRINT(simpleCommand);
+            //DEV_PRINT(simpleCommand);
+            //cout <<"polecenie: "<< licznik << " "  << simpleCommand << "\n";
+            licznik++;
             list<string> commandArguments = this->splitString(simpleCommand," ");
             string operationType = commandArguments.front();
             commandArguments.pop_front();
-            
+
+            //stack if
             if (operationType == "new_s") 
             {
                 int arg1 = returnNextArgument(commandArguments);
@@ -386,6 +616,55 @@ public:
                 int arg1 = returnNextArgument(commandArguments);
                 this->printStack(arg1);
             }
+
+            //queue if
+             else if (operationType == "new_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->createQueue(arg1);
+            }
+            else if (operationType == "enqueue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->addElementToQueue(arg1, arg2);
+            }
+            else if (operationType == "dequeue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->deleteElementFromQueue(arg1);
+            }
+            else if (operationType == "delete_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->deleteQueue(arg1);
+            }
+            else if (operationType == "print_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->printQueue(arg1);
+            }
+            else if (operationType == "queue->queue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->moveElementFromQueueAToQueueB(arg1, arg2);
+            }
+            
+            //move between stack & queue
+            else if (operationType == "stack->queue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->moveElementFormStackToQueue(arg1, arg2);
+            }
+            else if (operationType == "queue->stack")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->moveElementFromQueueToStack(arg1, arg2);
+            }
+            
         }
             
     }
@@ -403,23 +682,24 @@ public:
 int main()
 {
  
-    QueueAndStackSystem q1(10, 10, 10, 10);
-    /*q1.frontendCore();*/
-    q1.createQueue(0);
+    QueueAndStackSystem q1(10,10,10,10);
+    q1.frontendCore();
+
+   /* q1.createQueue(0);
     q1.addElementToQueue(0, 10);
-    q1.addElementToQueue(0, 20);
-    q1.addElementToQueue(0, 30);
-    q1.addElementToQueue(0, 40);
-    
+    q1.deleteElementFromQueue(0);
+    q1.deleteQueue(0);
+    q1.deleteElementFromQueue(0);
+    q1.printQueue(3);*/
 
-    q1.createStack(0);
-    q1.addElementToStack(0,100);
-    q1.addElementToStack(0,200);
-    q1.addElementToStack(0,300);
-    q1.addElementToStack(0,400);
+    //q1.createStack(0);
+    //q1.addElementToStack(0,100);
+    //q1.addElementToStack(0,200);
+    //q1.addElementToStack(0,300);
+    //q1.addElementToStack(0,400);
 
-    q1.printQueue(0);
-    q1.printStack(0);
+
+    //q1.printStack(0);
 
     //TODO:
     /*
