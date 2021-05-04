@@ -1,10 +1,9 @@
 #include <iostream>
 #include <string>
-#include <queue> // to usuniecia
 #include <list>
 using namespace std;
-bool IS_PRINT = false;
 
+bool IS_PRINT = false;
 void DEV_PRINT(string msg)
 {
     if (IS_PRINT)
@@ -13,6 +12,182 @@ void DEV_PRINT(string msg)
     }
 }
 
+class SimpleStructure 
+{
+private:
+    list<int>** structureList;
+    bool* isStructureExist;
+    const int maxAmountItemsPerStructure;
+    const int structureAmount;
+    const string structureName;
+public:
+    SimpleStructure(const int structureAmount, const int maxAmountItemsPerStructure, string structureName)
+        :structureAmount(structureAmount), maxAmountItemsPerStructure(maxAmountItemsPerStructure), structureName(structureName)
+    {
+        this->structureList = new list <int>*[structureAmount];
+        this->isStructureExist = new bool[structureAmount]();
+    }
+    bool CheckIsStructureIndexOK(int structureIndex)
+    {
+        // check is stack index correct
+        //a) check is index beetween 0 and stackAmount
+        //b) check is stack exist 
+        if (structureIndex < this->structureAmount && structureIndex >= 0 && this->isStructureExist[structureIndex] == true)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    list<string> splitString(string text, string separator)
+    {
+        int  foundSeparator = text.find(separator);
+        int indexStart = 0;
+        list <string> arguments;
+        if (foundSeparator != -1)
+        {
+            while (true)
+            {
+                string textToPush = text.substr(indexStart, foundSeparator - indexStart);
+                arguments.push_back(textToPush);
+                text = text.substr(foundSeparator + 1);
+                foundSeparator = text.find(separator);
+                if (foundSeparator == -1)
+                {
+                    arguments.push_back(text);
+                    break;
+                }
+            }
+        }
+        return arguments;
+    }
+    void createStructure(int structureIndex)
+    {
+        if (structureIndex >= 0 && structureIndex <= this->maxAmountItemsPerStructure)
+        {
+            this->isStructureExist[structureIndex] = true;
+            this->structureList[structureIndex] = new list <int>;
+            DEV_PRINT("ok ->structure: " + this->structureName + " created");
+        }
+        else
+        {
+            DEV_PRINT("cant create structure:" + this->structureName + "  -> bad index");
+        }
+    }
+    bool checkCanAddElementToStructure(int structureIndex, int elementToInsert)
+    {
+        if (this->CheckIsStructureIndexOK(structureIndex))
+        {
+
+            if (this->structureList[structureIndex]->size() < this->maxAmountItemsPerStructure)
+            {
+                return true;
+            }
+            else
+            {
+                cout << "error: structure is full\n";
+                return false;
+            }
+        }
+        else
+        {
+            DEV_PRINT("add element -> bad structure index");
+            return false;
+        }
+    }
+    bool checkCanDeleteElementFromStructure(int structureIndex)
+    {
+        if (this->CheckIsStructureIndexOK(structureIndex))
+        {
+            if (this->structureList[structureIndex]->size() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                cout << "error: structure is empty\n";
+                return false;
+            }
+        }
+        else
+        {
+            DEV_PRINT("delete element -> bad structure index");
+            return false;
+        }
+    }
+    bool checkCanMoveElementFromStructureAToB(int stackIndexA, int stackIndexB)
+    {
+        if (this->CheckIsStructureIndexOK(stackIndexA) && this->CheckIsStructureIndexOK(stackIndexB))
+        {
+            if (this->structureList[stackIndexA]->size() == 0)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element structure to structure -> structure is empty");
+                return false;
+            }
+            else if (this->structureList[stackIndexB]->size() == this->maxAmountItemsPerStructure)
+            {
+                cout << "error: wrong command\n";
+                DEV_PRINT("move element structure to structure -> structure is full");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+        else
+        {
+            DEV_PRINT("move element structure A to structure B -> bad structure index");
+            return false;
+        }
+    }
+    void deleteStructure(int structureIndex)
+    {
+        if (this->CheckIsStructureIndexOK(structureIndex))
+        {
+            delete this->structureList[structureIndex];
+            this->isStructureExist[structureIndex] = false;
+        }
+        else
+        {
+            DEV_PRINT("delete structure -> bad stack index");
+        }
+    }
+    bool checkCanPrintStructure(int structureIndex)
+    {
+        if (this->CheckIsStructureIndexOK(structureIndex))
+        {
+            if (this->structureList[structureIndex]->size() == 0)
+            {
+                cout << "empty\n";
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            DEV_PRINT("bad index -> structure print");
+            return false;
+        }
+    }
+    /*
+    TODO:
+    1. do virtual function
+    2. test
+    */
+};
+
+
+//------------------------------------------------------------
+//------------------------------------------------------------
+//------------------------------------------------------------
 class QueueAndStackSystem
 {
 private:
