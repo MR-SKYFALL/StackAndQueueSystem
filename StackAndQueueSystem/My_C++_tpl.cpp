@@ -3,7 +3,7 @@
 #include <list>
 using namespace std;
 
-bool IS_PRINT = false;
+bool IS_PRINT = true;
 void DEV_PRINT(string msg)
 {
     if (IS_PRINT)
@@ -12,21 +12,66 @@ void DEV_PRINT(string msg)
     }
 }
 
-class SimpleStructure 
+class OperationResult
 {
 private:
+    int item;
+    bool is_succesful;
+public:
+    OperationResult(int item, bool is_succesful)
+        :item(item), is_succesful(is_succesful)
+    {}
+    int getItem()
+    {
+        return this->item;
+    }
+    bool getResult()
+    {
+        return this->is_succesful;
+    }
+};
+
+class SimpleStructure 
+{
+protected:
     list<int>** structureList;
     bool* isStructureExist;
     const int maxAmountItemsPerStructure;
     const int structureAmount;
-    const string structureName;
 public:
-    SimpleStructure(const int structureAmount, const int maxAmountItemsPerStructure, string structureName)
-        :structureAmount(structureAmount), maxAmountItemsPerStructure(maxAmountItemsPerStructure), structureName(structureName)
+    SimpleStructure(const int structureAmount, const int maxAmountItemsPerStructure)
+        :structureAmount(structureAmount), maxAmountItemsPerStructure(maxAmountItemsPerStructure)
     {
         this->structureList = new list <int>*[structureAmount];
         this->isStructureExist = new bool[structureAmount]();
     }
+    OperationResult createStructure(int structureIndex)
+    {
+        if (structureIndex >= 0 && structureIndex <= this->maxAmountItemsPerStructure)
+        {
+            this->isStructureExist[structureIndex] = true;
+            this->structureList[structureIndex] = new list <int>;
+            return OperationResult(structureIndex, true);
+        }
+        else
+        {
+            return OperationResult(structureIndex, false);
+        }
+    }
+    OperationResult deleteStructure(int structureIndex)
+    {
+        if (this->CheckIsStructureIndexOK(structureIndex))
+        {
+            delete this->structureList[structureIndex];
+            this->isStructureExist[structureIndex] = false;
+            return OperationResult(structureIndex, true);
+        }
+        else
+        {
+            return OperationResult(structureIndex, false);
+        }
+    }
+protected:
     bool CheckIsStructureIndexOK(int structureIndex)
     {
         // check is stack index correct
@@ -41,41 +86,7 @@ public:
             return false;
         }
     }
-    list<string> splitString(string text, string separator)
-    {
-        int  foundSeparator = text.find(separator);
-        int indexStart = 0;
-        list <string> arguments;
-        if (foundSeparator != -1)
-        {
-            while (true)
-            {
-                string textToPush = text.substr(indexStart, foundSeparator - indexStart);
-                arguments.push_back(textToPush);
-                text = text.substr(foundSeparator + 1);
-                foundSeparator = text.find(separator);
-                if (foundSeparator == -1)
-                {
-                    arguments.push_back(text);
-                    break;
-                }
-            }
-        }
-        return arguments;
-    }
-    void createStructure(int structureIndex)
-    {
-        if (structureIndex >= 0 && structureIndex <= this->maxAmountItemsPerStructure)
-        {
-            this->isStructureExist[structureIndex] = true;
-            this->structureList[structureIndex] = new list <int>;
-            DEV_PRINT("ok ->structure: " + this->structureName + " created");
-        }
-        else
-        {
-            DEV_PRINT("cant create structure:" + this->structureName + "  -> bad index");
-        }
-    }
+    
     bool checkCanAddElementToStructure(int structureIndex, int elementToInsert)
     {
         if (this->CheckIsStructureIndexOK(structureIndex))
@@ -117,46 +128,7 @@ public:
             return false;
         }
     }
-    bool checkCanMoveElementFromStructureAToB(int stackIndexA, int stackIndexB)
-    {
-        if (this->CheckIsStructureIndexOK(stackIndexA) && this->CheckIsStructureIndexOK(stackIndexB))
-        {
-            if (this->structureList[stackIndexA]->size() == 0)
-            {
-                cout << "error: wrong command\n";
-                DEV_PRINT("move element structure to structure -> structure is empty");
-                return false;
-            }
-            else if (this->structureList[stackIndexB]->size() == this->maxAmountItemsPerStructure)
-            {
-                cout << "error: wrong command\n";
-                DEV_PRINT("move element structure to structure -> structure is full");
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-
-        }
-        else
-        {
-            DEV_PRINT("move element structure A to structure B -> bad structure index");
-            return false;
-        }
-    }
-    void deleteStructure(int structureIndex)
-    {
-        if (this->CheckIsStructureIndexOK(structureIndex))
-        {
-            delete this->structureList[structureIndex];
-            this->isStructureExist[structureIndex] = false;
-        }
-        else
-        {
-            DEV_PRINT("delete structure -> bad stack index");
-        }
-    }
+   
     bool checkCanPrintStructure(int structureIndex)
     {
         if (this->CheckIsStructureIndexOK(structureIndex))
@@ -177,13 +149,299 @@ public:
             return false;
         }
     }
-    /*
-    TODO:
-    1. do virtual function
-    2. test
-    */
+    virtual OperationResult addElementToStructure(int structureIndex, int elementToInsert) = 0;
+    virtual OperationResult deleteElementFromStructure(int structureIndex) = 0;
+    virtual OperationResult printStructure(int structureIndex) = 0;
 };
 
+class StackStructure: public SimpleStructure
+{
+public:
+    StackStructure(const int structureAmount, const int maxAmountItemsPerStructure)
+        :SimpleStructure(structureAmount, maxAmountItemsPerStructure)
+    {}
+    OperationResult addElementToStructure(int structureIndex, int elementToInsert)
+    {
+        if (this->checkCanAddElementToStructure(structureIndex, elementToInsert))
+        {
+            this->structureList[structureIndex]->push_front(elementToInsert);
+            return OperationResult(elementToInsert, true);
+        }
+        else {
+            return OperationResult(elementToInsert, false);
+        }
+    }
+    OperationResult deleteElementFromStructure(int structureIndex)
+    {
+        if (this->checkCanDeleteElementFromStructure(structureIndex))
+        {
+            int deletedElement = this->structureList[structureIndex]->front();
+            this->structureList[structureIndex]->pop_front();
+            return OperationResult(deletedElement, true);
+        }
+        else
+        {
+            return OperationResult(structureIndex, false);
+        }
+    }
+    OperationResult printStructure(int structureIndex)
+    {
+        if (this->checkCanPrintStructure(structureIndex))
+        {
+            int size = this->structureList[structureIndex]->size();
+            for (int i = 0; i < size; i++)
+            {
+                int tmp = this->structureList[structureIndex]->back();
+                cout << tmp << " ";
+                this->structureList[structureIndex]->pop_back();
+                this->structureList[structureIndex]->push_front(tmp);
+            }
+            cout << "\n";
+            return OperationResult(structureIndex, true);
+        }
+        else
+        {
+            cout << "bad index print queue\n";
+            return OperationResult(structureIndex, false);
+        }
+    }
+};
+
+class QueueStructure : public SimpleStructure
+{
+public:
+    QueueStructure(const int structureAmount, const int maxAmountItemsPerStructure)
+        :SimpleStructure(structureAmount, maxAmountItemsPerStructure)
+    {}
+    OperationResult addElementToStructure(int structureIndex, int elementToInsert)
+    {
+        if (this->checkCanAddElementToStructure(structureIndex, elementToInsert))
+        {
+            this->structureList[structureIndex]->push_front(elementToInsert);
+            return OperationResult(elementToInsert, true);
+        }
+        else {
+            return OperationResult(elementToInsert, false);
+        }
+    }
+    OperationResult deleteElementFromStructure(int structureIndex)
+    {
+        if (this->checkCanDeleteElementFromStructure(structureIndex))
+        {
+            int deletedElement = this->structureList[structureIndex]->back();
+            this->structureList[structureIndex]->pop_back();
+            return OperationResult(deletedElement, true);
+        }
+        else
+        {
+            return OperationResult(structureIndex, false);
+        }
+    }
+    OperationResult printStructure(int structureIndex)
+    {
+        if (this->checkCanPrintStructure(structureIndex))
+        {
+            int size = this->structureList[structureIndex]->size();
+            for (int i = 0; i < size; i++)
+            {
+                int tmp = this->structureList[structureIndex]->front();
+                cout << tmp << " ";
+                this->structureList[structureIndex]->pop_front();
+                this->structureList[structureIndex]->push_back(tmp);
+            }
+            cout << "\n";
+            return OperationResult(structureIndex, true);
+        }
+        else {
+            return OperationResult(structureIndex, false);
+        }
+    }
+};
+
+class StructuresControler
+{
+private:
+    QueueStructure q1;
+    StackStructure s1;
+public:
+    StructuresControler(QueueStructure& q1, StackStructure& s1)
+        :q1(q1), s1(s1)
+    {}
+    list<string> splitString(string text, string separator)
+    {
+        int  foundSeparator = text.find(separator);
+        int indexStart = 0;
+        list <string> arguments;
+        if (foundSeparator != -1)
+        {
+            while (true)
+            {
+                string textToPush = text.substr(indexStart, foundSeparator - indexStart);
+                arguments.push_back(textToPush);
+                text = text.substr(foundSeparator + 1);
+                foundSeparator = text.find(separator);
+                if (foundSeparator == -1)
+                {
+                    arguments.push_back(text);
+                    break;
+                }
+            }
+        }
+        return arguments;
+    }
+    int returnNextArgument(list<string>& command)
+    {
+        string argument1 = command.front();
+        command.pop_front();
+        int value1 = stoi(argument1);
+        return value1;
+    }
+    void frontedCore()
+    {
+        list<string> commandListToExecute;
+
+        while (true)
+        {
+            string commandToExecute;
+            getline(cin, commandToExecute);
+            if (commandToExecute == "")
+            {
+                break;
+            }
+            commandListToExecute.push_back(commandToExecute);
+        }
+        int licznik = 1;
+        for (auto simpleCommand : commandListToExecute)
+        {
+            licznik++;
+            list<string> commandArguments = this->splitString(simpleCommand, " ");
+            string operationType = commandArguments.front();
+            commandArguments.pop_front();
+
+            //stack if
+            if (operationType == "new_s")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->s1.createStructure(arg1);
+            }
+            else if (operationType == "push")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->s1.addElementToStructure(arg1, arg2);
+            }
+            else if (operationType == "pop")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->s1.deleteElementFromStructure(arg1);
+            }
+            else if (operationType == "stack->stack")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                //this->moveElementFromStackAToStackB(arg1, arg2);
+                OperationResult r1 = this->s1.deleteElementFromStructure(arg1);
+                if (r1.getResult() == true)
+                {
+                    this->s1.addElementToStructure(arg2, r1.getItem());
+                }
+                else
+                {
+                    DEV_PRINT("error move");
+                }
+                
+            }
+            else if (operationType == "delete_s")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->s1.deleteStructure(arg1);
+            }
+            else if (operationType == "print_s")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->s1.printStructure(arg1);
+            }
+
+            //queue if
+            else if (operationType == "new_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->q1.createStructure(arg1);
+            }
+            else if (operationType == "enqueue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                this->q1.addElementToStructure(arg1, arg2);
+            }
+            else if (operationType == "dequeue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->q1.deleteElementFromStructure(arg1);
+            }
+            else if (operationType == "delete_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->q1.deleteStructure(arg1);
+            }
+            else if (operationType == "print_q")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                this->q1.printStructure(arg1);
+            }
+            else if (operationType == "queue->queue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                
+                OperationResult r1 = this->q1.deleteElementFromStructure(arg1);
+                if (r1.getResult() == true)
+                {
+                    this->q1.addElementToStructure(arg2, r1.getItem());
+                }
+                else
+                {
+                    DEV_PRINT("error move");
+                }
+            }
+
+            //move between stack & queue
+            else if (operationType == "stack->queue")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                
+                OperationResult r1 = this->s1.deleteElementFromStructure(arg1);
+                if (r1.getResult() == true)
+                {
+                    this->q1.addElementToStructure(arg2, r1.getItem());
+                }
+                else
+                {
+                    DEV_PRINT("error move");
+                }
+            }
+            else if (operationType == "queue->stack")
+            {
+                int arg1 = returnNextArgument(commandArguments);
+                int arg2 = returnNextArgument(commandArguments);
+                
+                OperationResult r1 = this->q1.deleteElementFromStructure(arg1);
+                if (r1.getResult() == true)
+                {
+                    this->s1.addElementToStructure(arg2, r1.getItem());
+                }
+                else
+                {
+                    DEV_PRINT("error move");
+                }
+            }
+
+        }
+
+    }
+
+};
 
 //------------------------------------------------------------
 //------------------------------------------------------------
@@ -202,7 +460,7 @@ private:
     bool* isQueueExist;
     const int maxAmountItemsPerQueue;
     const int queueAmount;
-    
+
 
 public:
     QueueAndStackSystem(const int stackAmount, const int maxAmountItemsPerStack,
@@ -283,7 +541,7 @@ public:
         {
             this->isStackExist[stackIndex] = true;
             this->stackList[stackIndex] = new list <int>;
-            
+
             DEV_PRINT("ok -> stack created");
         }
         else
@@ -305,11 +563,11 @@ public:
             DEV_PRINT("cant create queue -> bad index");
         }
     }
-    void addElementToStack( int stackIndex, int elementToInsert)
+    void addElementToStack(int stackIndex, int elementToInsert)
     {
         if (this->stackCheckIsIndexOK(stackIndex))
         {
-            
+
             if (this->stackList[stackIndex]->size() < this->maxAmountItemsPerStack)
             {
                 this->stackList[stackIndex]->push_front(elementToInsert);
@@ -393,13 +651,13 @@ public:
                 cout << "error: wrong command\n";
                 DEV_PRINT("move element stackA to stackB -> stackB is full");
             }
-            else 
+            else
             {
                 int tmp = this->stackList[stackIndexA]->front();
                 this->deleteElementFromStack(stackIndexA);
                 this->addElementToStack(stackIndexB, tmp);
             }
-           
+
         }
         else
         {
@@ -486,7 +744,7 @@ public:
     }
     void deleteStack(int stackIndex)
     {
-        if ( this->stackCheckIsIndexOK(stackIndex))
+        if (this->stackCheckIsIndexOK(stackIndex))
         {
             delete this->stackList[stackIndex];
             this->isStackExist[stackIndex] = false;
@@ -857,8 +1115,8 @@ public:
 int main()
 {
  
-    QueueAndStackSystem q1(10,10,10,10);
-    q1.frontendCore();
+    /*QueueAndStackSystem q1(10,10,10,10);
+    q1.frontendCore();*/
 
    /* q1.createQueue(0);
     q1.addElementToQueue(0, 10);
@@ -880,4 +1138,31 @@ int main()
     /*
     1.Test queue backend. Particulary print operation
     */
+
+    /*StackStructure s1(10, 10);
+    QueueStructure q1(10, 10);
+
+    q1.createStructure(1);
+    q1.addElementToStructure(1, 111);
+    q1.addElementToStructure(1, 222);
+    q1.addElementToStructure(1, 333);
+    q1.printStructure(1);
+    q1.deleteElementFromStructure(1);
+    q1.printStructure(1);
+    q1.addElementToStructure(2, 333);
+    q1.printStructure(1);
+    cout << "-----\n";
+
+    s1.createStructure(1);
+    s1.addElementToStructure(1, 111);
+    s1.addElementToStructure(1, 222);
+    s1.addElementToStructure(1, 333);
+    s1.printStructure(1);
+    s1.deleteElementFromStructure(1);
+    s1.printStructure(1);
+    s1.addElementToStructure(2, 333);
+    s1.printStructure(1);*/
+
+
+    
 }
