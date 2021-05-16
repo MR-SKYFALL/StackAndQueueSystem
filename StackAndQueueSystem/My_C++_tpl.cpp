@@ -680,43 +680,8 @@ public:
 
 int main()
 {
- 
-
-    /*StackStructure s1(10, 10);
-    QueueStructure q1(10, 10);
-
-    q1.createStructure(1);
-    q1.addElementToStructure(1, 111);
-    q1.addElementToStructure(1, 222);
-    q1.addElementToStructure(1, 333);
-    q1.printStructure(1);
-    q1.deleteElementFromStructure(1);
-    q1.printStructure(1);
-    q1.addElementToStructure(2, 333);
-    q1.printStructure(1);
-    cout << "-----\n";
-
-    s1.createStructure(1);
-    s1.addElementToStructure(1, 111);
-    s1.addElementToStructure(1, 222);
-    s1.addElementToStructure(1, 333);
-    s1.printStructure(1);
-    s1.deleteElementFromStructure(1);
-    s1.printStructure(1);
-    s1.addElementToStructure(2, 333);
-    s1.printStructure(1);*/
-
     QueueStructure queue(10, 10, "queue");
     StackStructure stack(10, 10, "stack");
     StructuresControler controler(queue, stack);
     controler.frontedCore();
-
-    //TODO:
-    /*
-    1. error info name correction (ex. test 4) -> ok
-    2. exchange int to typedef -> ok
-    3. check repetitive code
-    4. code clean up
-    
-    */
 }
