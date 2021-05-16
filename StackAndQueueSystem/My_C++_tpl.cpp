@@ -3,7 +3,7 @@
 #include <list>
 using namespace std;
 
-bool IS_PRINT = true;
+bool IS_PRINT = false;
 void DEV_PRINT(string msg)
 {
     if (IS_PRINT)
@@ -318,7 +318,7 @@ public:
     void frontedCore()
     {
         list<string> commandListToExecute;
-        commandListToExecute.push_back("new_s 0");
+      /*  commandListToExecute.push_back("new_s 0");
         commandListToExecute.push_back("push 0 96");
         commandListToExecute.push_back("new_s 5");
         commandListToExecute.push_back("print_s 5");
@@ -368,8 +368,8 @@ public:
         commandListToExecute.push_back("print_s 0");
         commandListToExecute.push_back("print_s 5");
         commandListToExecute.push_back("print_q 0");
-        commandListToExecute.push_back("print_q 9");
-        /*while (true)
+        commandListToExecute.push_back("print_q 9");*/
+        while (true)
         {
             string commandToExecute;
             getline(cin, commandToExecute);
@@ -378,7 +378,7 @@ public:
                 break;
             }
             commandListToExecute.push_back(commandToExecute);
-        }*/
+        }
         int licznik = 1;
         for (auto simpleCommand : commandListToExecute)
         {
@@ -480,11 +480,16 @@ public:
                 if (result.getResult() == true)
                 {
                     result2 = this->queue.addElementToStructure(arg2, result.getItem());
+                    if (result2.getResult() == false)
+                    {
+                        this->queue.addElementToStructure(arg1, result.getItem()); // rollback
+                    }
                 }
                 if (result.getResult() == false || result2.getResult() == false)
                 {
                     cout << "error: wrong command\n";
                 }
+               
             }
             else if (operationType == "stack->queue")
             {
@@ -496,11 +501,16 @@ public:
                 if (result.getResult() == true)
                 {
                     result2 = this->queue.addElementToStructure(arg2, result.getItem());
+                    if (result2.getResult() == false)
+                    {
+                        this->stack.addElementToStructure(arg1, result.getItem()); // rollback
+                    }
                 }
                 if (result.getResult() == false || result2.getResult() == false)
                 {
                     cout << "error: wrong command\n";
                 }
+               
             }
             else if (operationType == "queue->stack")
             {
@@ -512,11 +522,16 @@ public:
                 if (result.getResult() == true)
                 {
                     result2 = this->stack.addElementToStructure(arg2, result.getItem());
+                    if (result2.getResult() == false)
+                    {
+                        this->queue.addElementToStructure(arg1, result.getItem()); // rollback
+                    }
                 }
                 if (result.getResult() == false || result2.getResult() == false)
                 {
                     cout << "error: wrong command\n";
                 }
+                
             }
             else if (operationType == "stack->stack")
             {
@@ -527,11 +542,16 @@ public:
                 if (result.getResult() == true)
                 {
                     result2 = this->stack.addElementToStructure(arg2, result.getItem());
+                    if (result2.getResult() == false)
+                    {
+                        this->stack.addElementToStructure(arg1, result.getItem()); // rollback
+                    }
                 }
                 if (result.getResult() == false || result2.getResult() == false)
                 {
                     cout << "error: wrong command\n";
                 }
+               
 
             }
 
