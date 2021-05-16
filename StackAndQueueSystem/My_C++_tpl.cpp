@@ -48,9 +48,10 @@ protected:
     bool* isStructureExist;
     const int maxAmountItemsPerStructure;
     const int structureAmount;
+    const string structureName;
 public:
-    SimpleStructure(const int structureAmount, const int maxAmountItemsPerStructure)
-        :structureAmount(structureAmount), maxAmountItemsPerStructure(maxAmountItemsPerStructure)
+    SimpleStructure(const int structureAmount, const int maxAmountItemsPerStructure, const string structureName)
+        :structureAmount(structureAmount), maxAmountItemsPerStructure(maxAmountItemsPerStructure), structureName(structureName)
     {
         this->structureList = new list <int>*[structureAmount];
         this->isStructureExist = new bool[structureAmount]();
@@ -101,6 +102,7 @@ protected:
     
     OperationResult checkCanAddElementToStructure(int structureIndex, int elementToInsert)
     {
+        string errorInfo = "error: " + this->structureName + " is full\n";
         if (this->CheckIsStructureIndexOK(structureIndex))
         {
 
@@ -110,17 +112,18 @@ protected:
             }
             else
             {
-                return OperationResult(elementToInsert, false, "error: structure is full\n");
+                return OperationResult(elementToInsert, false, errorInfo);
             }
         }
         else
         {
             DEV_PRINT("add element -> bad structure index");
-            return OperationResult(elementToInsert, false, "add element -> bad structure index");
+            return OperationResult(elementToInsert, false, errorInfo);
         }
     }
     OperationResult checkCanDeleteElementFromStructure(int structureIndex)
     {
+        string errorInfo = "error: " + this->structureName + " is empty\n";
         if (this->CheckIsStructureIndexOK(structureIndex))
         {
             if (this->structureList[structureIndex]->size() > 0)
@@ -129,23 +132,25 @@ protected:
             }
             else
             {
-                return OperationResult(structureIndex, false, "error: structure is empty\n");
+                return OperationResult(structureIndex, false, errorInfo);
             }
         }
         else
         {
             DEV_PRINT("delete element -> bad structure index");
-            return OperationResult(structureIndex, false, "delete element -> bad structure index");
+            
+            return OperationResult(structureIndex, false, errorInfo);
         }
     }
    
     OperationResult checkCanPrintStructure(int structureIndex)
     {
+        string errorInfo = "empty\n";
         if (this->CheckIsStructureIndexOK(structureIndex))
         {
             if (this->structureList[structureIndex]->size() == 0)
             {
-                return OperationResult(structureIndex, false, "empty\n");
+                return OperationResult(structureIndex, false, errorInfo);
             }
             else
             {
@@ -155,7 +160,7 @@ protected:
         else
         {
             DEV_PRINT("bad index -> structure print");
-            return OperationResult(structureIndex, false, "bad index -> structure print");
+            return OperationResult(structureIndex, false, errorInfo);
         }
     }
     virtual OperationResult addElementToStructure(int structureIndex, int elementToInsert) = 0;
@@ -166,8 +171,8 @@ protected:
 class StackStructure: public SimpleStructure
 {
 public:
-    StackStructure(const int structureAmount, const int maxAmountItemsPerStructure)
-        :SimpleStructure(structureAmount, maxAmountItemsPerStructure)
+    StackStructure(const int structureAmount, const int maxAmountItemsPerStructure, const string structureName)
+        :SimpleStructure(structureAmount, maxAmountItemsPerStructure, structureName)
     {}
     OperationResult addElementToStructure(int structureIndex, int elementToInsert)
     {
@@ -221,8 +226,8 @@ public:
 class QueueStructure : public SimpleStructure
 {
 public:
-    QueueStructure(const int structureAmount, const int maxAmountItemsPerStructure)
-        :SimpleStructure(structureAmount, maxAmountItemsPerStructure)
+    QueueStructure(const int structureAmount, const int maxAmountItemsPerStructure, const string structureName)
+        :SimpleStructure(structureAmount, maxAmountItemsPerStructure, structureName)
     {}
     OperationResult addElementToStructure(int structureIndex, int elementToInsert)
     {
@@ -735,16 +740,17 @@ int main()
     s1.addElementToStructure(2, 333);
     s1.printStructure(1);*/
 
-    QueueStructure queue(10, 10);
-    StackStructure stack(10, 10);
+    QueueStructure queue(10, 10, "queue");
+    StackStructure stack(10, 10, "stack");
     StructuresControler controler(queue, stack);
     controler.frontedCore();
 
     //TODO:
     /*
-    1. error info name correction (ex. test 4)
-    2. code clean up
-    3. exchange int to typedef
-    4. check repetitive code
+    1. error info name correction (ex. test 4) ok
+    2. exchange int to typedef
+    3. check repetitive code
+    4. code clean up
+    
     */
 }
