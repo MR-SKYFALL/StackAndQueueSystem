@@ -12,6 +12,8 @@ void DEV_PRINT(string msg)
     }
 }
 
+typedef int Item;
+
 class OperationResult
 {
 private:
@@ -84,7 +86,6 @@ public:
             return OperationResult(structureIndex, false, "deleteStructure bad index");
         }
     }
-protected:
     bool CheckIsStructureIndexOK(int structureIndex)
     {
         // check is stack index correct
@@ -100,7 +101,7 @@ protected:
         }
     }
     
-    OperationResult checkCanAddElementToStructure(int structureIndex, int elementToInsert)
+    OperationResult checkCanAddElementToStructure(int structureIndex)
     {
         string errorInfo = "error: " + this->structureName + " is full\n";
         if (this->CheckIsStructureIndexOK(structureIndex))
@@ -108,17 +109,17 @@ protected:
 
             if (this->structureList[structureIndex]->size() < this->maxAmountItemsPerStructure)
             {
-                return OperationResult(elementToInsert,true);
+                return OperationResult(structureIndex,true);
             }
             else
             {
-                return OperationResult(elementToInsert, false, errorInfo);
+                return OperationResult(structureIndex, false, errorInfo);
             }
         }
         else
         {
             DEV_PRINT("add element -> bad structure index");
-            return OperationResult(elementToInsert, false, errorInfo);
+            return OperationResult(structureIndex, false, errorInfo);
         }
     }
     OperationResult checkCanDeleteElementFromStructure(int structureIndex)
@@ -176,7 +177,7 @@ public:
     {}
     OperationResult addElementToStructure(int structureIndex, int elementToInsert)
     {
-        OperationResult check1 = this->checkCanAddElementToStructure(structureIndex, elementToInsert);
+        OperationResult check1 = this->checkCanAddElementToStructure(structureIndex);
         if (check1.getResult())
         {
             this->structureList[structureIndex]->push_front(elementToInsert);
@@ -231,7 +232,7 @@ public:
     {}
     OperationResult addElementToStructure(int structureIndex, int elementToInsert)
     {
-        OperationResult check1 = this->checkCanAddElementToStructure(structureIndex, elementToInsert);
+        OperationResult check1 = this->checkCanAddElementToStructure(structureIndex);
         if (check1.getResult())
         {
             this->structureList[structureIndex]->push_front(elementToInsert);
@@ -475,84 +476,64 @@ public:
                 int arg1 = returnNextArgument(commandArguments);
                 int arg2 = returnNextArgument(commandArguments);
                 
-                OperationResult result = this->queue.deleteElementFromStructure(arg1);
-                OperationResult result2;
-                if (result.getResult() == true)
+                if (this->queue.checkCanDeleteElementFromStructure(arg1).getResult() &&
+                    this->queue.checkCanAddElementToStructure(arg2).getResult())
                 {
-                    result2 = this->queue.addElementToStructure(arg2, result.getItem());
-                    if (result2.getResult() == false)
-                    {
-                        this->queue.addElementToStructure(arg1, result.getItem()); // rollback
-                    }
+                    OperationResult result = this->queue.deleteElementFromStructure(arg1);
+                    this->queue.addElementToStructure(arg2, result.getItem());
                 }
-                if (result.getResult() == false || result2.getResult() == false)
+                else
                 {
                     cout << "error: wrong command\n";
                 }
-               
             }
             else if (operationType == "stack->queue")
             {
                 int arg1 = returnNextArgument(commandArguments);
                 int arg2 = returnNextArgument(commandArguments);
                 
-                OperationResult result = this->stack.deleteElementFromStructure(arg1);
-                OperationResult result2;
-                if (result.getResult() == true)
+                if (this->stack.checkCanDeleteElementFromStructure(arg1).getResult() &&
+                    this->queue.checkCanAddElementToStructure(arg2).getResult())
                 {
-                    result2 = this->queue.addElementToStructure(arg2, result.getItem());
-                    if (result2.getResult() == false)
-                    {
-                        this->stack.addElementToStructure(arg1, result.getItem()); // rollback
-                    }
+                    OperationResult result = this->stack.deleteElementFromStructure(arg1);
+                    this->queue.addElementToStructure(arg2, result.getItem());
                 }
-                if (result.getResult() == false || result2.getResult() == false)
+                else
                 {
                     cout << "error: wrong command\n";
                 }
-               
             }
             else if (operationType == "queue->stack")
             {
                 int arg1 = returnNextArgument(commandArguments);
                 int arg2 = returnNextArgument(commandArguments);
                 
-                OperationResult result = this->queue.deleteElementFromStructure(arg1);
-                OperationResult result2;
-                if (result.getResult() == true)
+                if (this->queue.checkCanDeleteElementFromStructure(arg1).getResult() &&
+                    this->stack.checkCanAddElementToStructure(arg2).getResult())
                 {
-                    result2 = this->stack.addElementToStructure(arg2, result.getItem());
-                    if (result2.getResult() == false)
-                    {
-                        this->queue.addElementToStructure(arg1, result.getItem()); // rollback
-                    }
+                    OperationResult result = this->queue.deleteElementFromStructure(arg1);
+                    this->stack.addElementToStructure(arg2, result.getItem());
                 }
-                if (result.getResult() == false || result2.getResult() == false)
+                else
                 {
                     cout << "error: wrong command\n";
                 }
-                
             }
             else if (operationType == "stack->stack")
             {
                 int arg1 = returnNextArgument(commandArguments);
                 int arg2 = returnNextArgument(commandArguments);
-                OperationResult result = this->stack.deleteElementFromStructure(arg1);
-                OperationResult result2;
-                if (result.getResult() == true)
+
+                if (this->stack.checkCanDeleteElementFromStructure(arg1).getResult() &&
+                    this->stack.checkCanAddElementToStructure(arg2).getResult())
                 {
-                    result2 = this->stack.addElementToStructure(arg2, result.getItem());
-                    if (result2.getResult() == false)
-                    {
-                        this->stack.addElementToStructure(arg1, result.getItem()); // rollback
-                    }
+                    OperationResult result = this->stack.deleteElementFromStructure(arg1);
+                    this->stack.addElementToStructure(arg2, result.getItem());
                 }
-                if (result.getResult() == false || result2.getResult() == false)
+                else
                 {
                     cout << "error: wrong command\n";
                 }
-               
-
             }
 
         }
